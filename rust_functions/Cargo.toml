@@ -2,5 +2,14 @@
 name = "rust_functions"
 version = "0.1.0"
 edition = "2024"
+authors = ["Peter Cullen Burbery peter.cullen.burbery@gmail.com"]
+description = "A collection of Rust utility functions (starting with format_number)."
+license = "MIT"
+repository = "https://github.com/PeterCullenBurbery/rust-functions"
+homepage = "https://github.com/PeterCullenBurbery/rust-functions"
+documentation = "https://docs.rs/rust_functions"
+readme = "../README.md"
+keywords = ["utility", "formatting", "numbers", "rust"]
+categories = ["text-processing", "value-formatting"]
 
 [dependencies]
