@@ -1,17 +1,6 @@
 pub mod number_formatting {
     const DEFAULT_DECIMAL_VALUE: usize = 3;
 
-    fn parse_group_size(group_size: &str) -> usize {
-        if group_size.is_empty() {
-            return DEFAULT_DECIMAL_VALUE;
-        }
-        let k: usize = group_size.parse().expect("group_size must be a positive integer");
-        if k == 0 {
-            panic!("group_size must be positive");
-        }
-        k
-    }
-
     fn group_integer(n: u128, k: usize) -> String {
         let mut s = n.to_string();
         if s == "0" {
@@ -41,9 +30,7 @@ pub mod number_formatting {
             .join("_")
     }
 
-    /// Public function
-    pub fn format_number(x: &str, group_size: &str) -> String {
-        let k = parse_group_size(group_size);
+    fn format_number_internal(x: &str, k: usize) -> String {
         let mut s = x.trim().to_string();
 
         let mut negative = false;
@@ -78,6 +65,39 @@ pub mod number_formatting {
         }
         out
     }
+
+    /// Trait to accept either `&str` or `usize` as group size
+    pub trait IntoGroupSize {
+        fn into_group_size(self) -> usize;
+    }
+
+    impl IntoGroupSize for &str {
+        fn into_group_size(self) -> usize {
+            if self.is_empty() {
+                return DEFAULT_DECIMAL_VALUE;
+            }
+            let k: usize = self.parse().expect("group_size must be a positive integer");
+            if k == 0 {
+                panic!("group_size must be positive");
+            }
+            k
+        }
+    }
+
+    impl IntoGroupSize for usize {
+        fn into_group_size(self) -> usize {
+            if self == 0 {
+                panic!("group_size must be positive");
+            }
+            self
+        }
+    }
+
+    /// Now one function works for both `&str` and `usize`
+    pub fn format_number<T: IntoGroupSize>(x: &str, group_size: T) -> String {
+        let k = group_size.into_group_size();
+        format_number_internal(x, k)
+    }
 }
 
 #[cfg(test)]
@@ -85,10 +105,30 @@ mod tests {
     use super::number_formatting::format_number;
 
     #[test]
-    fn test_format_number() {
-        assert_eq!(format_number("12345", ""), "012_345");
+    fn test_format_number_with_str() {
+        assert_eq!(format_number("12345", ""), "012_345"); // default group size = 3
         assert_eq!(format_number("12345", "4"), "0001_2345");
         assert_eq!(format_number("1.23456", "4"), "0001_decimal_point_2345_6000");
         assert_eq!(format_number("-1234", ""), "negative_001_234");
+    }
+
+    #[test]
+    fn test_format_number_with_usize() {
+        assert_eq!(format_number("12345", 3), "012_345"); // explicit usize 3
+        assert_eq!(format_number("12345", 4), "0001_2345");
+        assert_eq!(format_number("1.23456", 4), "0001_decimal_point_2345_6000");
+        assert_eq!(format_number("-1234", 3), "negative_001_234");
+    }
+
+    #[test]
+    #[should_panic(expected = "group_size must be positive")]
+    fn test_format_number_with_zero_usize_panics() {
+        format_number("12345", 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "group_size must be positive")]
+    fn test_format_number_with_zero_str_panics() {
+        format_number("12345", "0");
     }
 }
