@@ -14,12 +14,31 @@ rust-functions = "0.2.0"
 
 ## Usage
 
+The `format_number` function supports both `&str` and `usize` as the **group size** argument.
+
 ```rust
-use rust_functions::format_number;
+use rust_functions::number_formatting::format_number;
 
 fn main() {
-    let n = 1234567;
-    println!("{}", format_number(n)); // "001_234_567"
+    // Default group size (3) when passing ""
+    println!("{}", format_number("1234567", "")); 
+    // → "001_234_567"
+
+    // Explicit group size as string
+    println!("{}", format_number("1234567", "4")); 
+    // → "0123_4567"
+
+    // Explicit group size as usize
+    println!("{}", format_number("1234567", 4)); 
+    // → "0123_4567"
+
+    // Handles decimals
+    println!("{}", format_number("1234.5678", 3)); 
+    // → "001_234_decimal_point_567_800"
+
+    // Handles negatives
+    println!("{}", format_number("-1234", "")); 
+    // → "negative_001_234"
 }
 ```
 
