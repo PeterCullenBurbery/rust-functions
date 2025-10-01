@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025_010_001_018_009_038_539646000_America_slash_New_York_2025_W040_003_2025_274_1759356578_539646000
+
+### Updated
+- **README.md**:
+  - Corrected usage examples to show that `format_number` requires both a number (as `&str`) and a group size (`""`, `"4"`, or `usize`).
+  - Added demonstrations for:
+    - Default group size (`""`)
+    - Explicit group size as `&str`
+    - Explicit group size as `usize`
+    - Decimal numbers
+    - Negative numbers
+
+---
+
 ## [0.2.0] - 2025_010_001_017_050_016_216531100_America_slash_New_York_2025_W040_003_2025_274_1759355416_216531100
 
 ### Added

@@ -9,7 +9,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rust-functions = "0.2.0"
+rust-functions = "0.2.1"
 ```
 
 ## Usage
