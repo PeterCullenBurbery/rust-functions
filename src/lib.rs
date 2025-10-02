@@ -132,3 +132,147 @@ mod tests {
         format_number("12345", "0");
     }
 }
+
+pub mod number_theory_functions {
+    //! Number theory utilities.
+    //!
+    //! Currently, this module supports Champernowne number generation
+    //! with bases **2 through 36**. Bases outside this range will panic.
+    //! 
+    //! NOTE: To extend support beyond base 36, you would need to enlarge
+    //! the digit alphabet (e.g., include lowercase letters for base 62).
+
+    /// Compute the Champernowne number in a given base.
+    ///
+    /// - `limit`: how many sequential integers to concatenate.
+    /// - `base`: can be:
+    ///   - `""` → defaults to base 10,
+    ///   - a `usize`,
+    ///   - a string parseable as a number.
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    /// - base < 2 or base > 36,
+    /// - base is not an integer (e.g., `"2.5"`).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rust_functions::number_theory_functions::champernowne;
+    ///
+    /// assert_eq!(champernowne(10, ""), "0.12345678910");
+    /// assert_eq!(champernowne(10, 2), "0.11011100101110");
+    /// assert_eq!(champernowne(10, "10"), "0.12345678910");
+    /// ```
+    pub fn champernowne<B: IntoBase>(limit: usize, base: B) -> String {
+        let b = base.into_base();
+        if b < 2 || b > 36 {
+            panic!("Base must be between 2 and 36");
+        }
+
+        let mut result = String::from("0.");
+        for i in 1..=limit {
+            result.push_str(&to_base(i, b));
+        }
+        result
+    }
+
+    /// Helper: convert number to a string in base `b`.
+    /// Convert number `n` to a string in base `b`.
+    ///
+    /// Currently supports bases 2–36 using digits 0–9 and A–Z.
+    /// To extend this to larger bases, expand the digit set.
+    fn to_base(mut n: usize, b: usize) -> String {
+        let digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".as_bytes();
+        let mut res = Vec::new();
+        while n > 0 {
+            res.push(digits[n % b] as char);
+            n /= b;
+        }
+        if res.is_empty() {
+            res.push('0');
+        }
+        res.iter().rev().collect()
+    }
+
+    /// Trait to support `usize`, `&str`, and `String` as base argument
+    pub trait IntoBase {
+        fn into_base(self) -> usize;
+    }
+
+    impl IntoBase for usize {
+        fn into_base(self) -> usize {
+            self
+        }
+    }
+
+    impl IntoBase for &str {
+        fn into_base(self) -> usize {
+            if self.is_empty() {
+                return 10;
+            }
+            self.parse::<usize>().expect("Base must be an integer")
+        }
+    }
+
+    impl IntoBase for String {
+        fn into_base(self) -> usize {
+            self.as_str().into_base()
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::number_theory_functions::champernowne;
+
+    #[test]
+    fn test_champernowne_base10() {
+        assert_eq!(
+            champernowne(50, 10),
+            "0.12345678910111213141516171819202122232425262728293"
+        );
+    }
+
+    #[test]
+    fn test_champernowne_empty_string_defaults_to_10() {
+        assert_eq!(
+            champernowne(50, ""),
+            "0.12345678910111213141516171819202122232425262728293"
+        );
+    }
+
+    #[test]
+    fn test_champernowne_base2() {
+        assert_eq!(
+            champernowne(50, 2),
+            "0.11011100101110111100010011010101111001101111011111"
+        );
+    }
+
+    // --- BAD CASES ---
+    #[test]
+    #[should_panic(expected = "Base must be between 2 and 36")]
+    fn test_champernowne_base0() {
+        champernowne(50, 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Base must be between 2 and 36")]
+    fn test_champernowne_negative_base_panics() {
+        champernowne(50, "-2");
+    }
+
+    #[test]
+    #[should_panic] // will panic because "2.5" is not parseable as usize
+    fn test_champernowne_float_string_panics() {
+        champernowne(50, "2.5");
+    }
+
+    #[test]
+    #[should_panic(expected = "Base must be between 2 and 36")]
+    fn test_champernowne_base_too_large_panics() {
+        champernowne(50, 100);
+    }
+}
