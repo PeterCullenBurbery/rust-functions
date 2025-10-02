@@ -101,7 +101,7 @@ pub mod number_formatting {
 }
 
 #[cfg(test)]
-mod tests {
+mod formatting_tests {
     use super::number_formatting::format_number;
 
     #[test]
@@ -224,7 +224,7 @@ pub mod number_theory_functions {
 }
 
 #[cfg(test)]
-mod tests {
+mod number_theory_tests {
     use super::number_theory_functions::champernowne;
 
     #[test]
